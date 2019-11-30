@@ -896,7 +896,7 @@ class UI:
                     return w
         return None
 
-    # Initiate imaginary clusters Image Operations
+    # Initiate imaginary clusters for Image Operations
     def init_clusters(self):
         cluster_height = int(self.action.height) / (AutoConstants.IMG_CLUSTER_COUNT / 2)
         cluster_width = int(self.action.width) / 2
@@ -917,48 +917,48 @@ class UI:
 
             y = y + cluster_height
 
-        # pattern matching logic
-        def verify_pattern(self, img=None, start_reg=None, end_reg=None):
-            crop_top_x = 0
-            crop_top_y = 0
-            crop_bottom_x = 0
-            crop_bottom_y = 0
-            coordinates = []
+    # pattern matching logic
+    def verify_pattern(self, img=None, start_reg=None, end_reg=None):
+        crop_top_x = 0
+        crop_top_y = 0
+        crop_bottom_x = 0
+        crop_bottom_y = 0
+        coordinates = []
 
-            if not os.path.exists(os.path.dirname(__file__) + "/screenshots"):
-                os.mkdir(os.path.dirname(__file__) + "/screenshots")
+        if not os.path.exists(os.path.dirname(__file__) + "/screenshots"):
+            os.mkdir(os.path.dirname(__file__) + "/screenshots")
 
-            snap_cmd = self.command_shell + AutoConstants.SCREENCAP_COMMAND
-            pull_cmd = self.command + "pull /storage/sdcard0/snaps.png " + os.path.dirname(
-                __file__) + "/screenshots/snaps.png"
+        snap_cmd = self.command_shell + AutoConstants.SCREENCAP_COMMAND
+        pull_cmd = self.command + "pull /storage/sdcard0/snaps.png " + os.path.dirname(
+            __file__) + "/screenshots/snaps.png"
 
-            subprocess.Popen(snap_cmd, shell=False, stdout=subprocess.PIPE).stdout.read()
-            subprocess.Popen(pull_cmd, shell=False, stdout=subprocess.PIPE).stdout.read()
+        subprocess.Popen(snap_cmd, shell=False, stdout=subprocess.PIPE).stdout.read()
+        subprocess.Popen(pull_cmd, shell=False, stdout=subprocess.PIPE).stdout.read()
 
-            image = Image.open(os.path.dirname(__file__) + "\\screenshots\\snaps.png")
+        image = Image.open(os.path.dirname(__file__) + "\\screenshots\\snaps.png")
 
-            if end_reg is None:
-                crop_top_x = self.cluster_list[start_reg - 1]['topX']
-                crop_top_y = self.cluster_list[start_reg - 1]['topY']
-                crop_bottom_x = self.cluster_list[start_reg - 1]['bottomX']
-                crop_bottom_y = self.cluster_list[start_reg - 1]['bottomY']
-            else:
-                crop_top_x = self.cluster_list[start_reg - 1]['topX']
-                crop_top_y = self.cluster_list[start_reg - 1]['topY']
-                crop_bottom_x = self.cluster_list[end_reg - 1]['bottomX']
-                crop_bottom_y = self.cluster_list[end_reg - 1]['bottomY']
+        if end_reg is None:
+            crop_top_x = self.cluster_list[start_reg - 1]['topX']
+            crop_top_y = self.cluster_list[start_reg - 1]['topY']
+            crop_bottom_x = self.cluster_list[start_reg - 1]['bottomX']
+            crop_bottom_y = self.cluster_list[start_reg - 1]['bottomY']
+        else:
+            crop_top_x = self.cluster_list[start_reg - 1]['topX']
+            crop_top_y = self.cluster_list[start_reg - 1]['topY']
+            crop_bottom_x = self.cluster_list[end_reg - 1]['bottomX']
+            crop_bottom_y = self.cluster_list[end_reg - 1]['bottomY']
 
-            box = (crop_top_x, crop_top_y, crop_bottom_x, crop_bottom_y)
-            area = image.crop(box)
-            area.save(os.path.dirname(__file__) + "\\screenshots\\cropped_snaps.png")
-            cropped_snap = os.path.dirname(__file__) + "\\screenshots\\cropped_snaps.png"
+        box = (crop_top_x, crop_top_y, crop_bottom_x, crop_bottom_y)
+        area = image.crop(box)
+        area.save(os.path.dirname(__file__) + "\\screenshots\\cropped_snaps.png")
+        cropped_snap = os.path.dirname(__file__) + "\\screenshots\\cropped_snaps.png"
 
-            img_rgb = cv2.imread(cropped_snap)
-            template = cv2.imread(img)
+        img_rgb = cv2.imread(cropped_snap)
+        template = cv2.imread(img)
 
-            res = cv2.matchTemplate(img_rgb, template, cv2.TM_CCOEFF_NORMED)
-            threshold = .8
-            loc = numpy.where(res >= threshold)
-            if loc[0].size > 0:
-                return True
-            return False
+        res = cv2.matchTemplate(img_rgb, template, cv2.TM_CCOEFF_NORMED)
+        threshold = .8
+        loc = numpy.where(res >= threshold)
+        if loc[0].size > 0:
+            return True
+        return False
