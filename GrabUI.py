@@ -9,6 +9,10 @@ import socket
 import re
 import os
 
+from PIL import Image
+import cv2
+import numpy
+
 
 class Widget:
     def __init__(self, action, level, line):
@@ -115,6 +119,9 @@ class UI:
         self.widget = None
         self.dump_data = ''
         self.communication_status = False
+
+        self.cluster_list = []
+        self.init_clusters()
 
     def start_server(self):
         if self.view_server:
@@ -888,3 +895,70 @@ class UI:
                 if w is not None:
                     return w
         return None
+
+    # Initiate imaginary clusters Image Operations
+    def init_clusters(self):
+        cluster_height = int(self.action.height) / (AutoConstants.IMG_CLUSTER_COUNT / 2)
+        cluster_width = int(self.action.width) / 2
+        rows = AutoConstants.IMG_CLUSTER_COUNT / 2
+        height_new = 0
+        x = 0
+        y = 0
+
+        for i in range(1, rows + 1):
+            # Left Cluster
+            height_new = height_new + cluster_height
+            dl = {'topX': x, 'topY': x, 'bottomX': cluster_width, 'bottomY': height_new}
+            self.cluster_list.append(dl)
+
+            # Right Cluster
+            dr = {'topX': cluster_width, 'topY': y, 'bottomX': int(self.action.width), 'bottomY': height_new}
+            self.cluster_list.append(dr)
+
+            y = y + cluster_height
+
+        # pattern matching logic
+        def verify_pattern(self, img=None, start_reg=None, end_reg=None):
+            crop_top_x = 0
+            crop_top_y = 0
+            crop_bottom_x = 0
+            crop_bottom_y = 0
+            coordinates = []
+
+            if not os.path.exists(os.path.dirname(__file__) + "/screenshots"):
+                os.mkdir(os.path.dirname(__file__) + "/screenshots")
+
+            snap_cmd = self.command_shell + AutoConstants.SCREENCAP_COMMAND
+            pull_cmd = self.command + "pull /storage/sdcard0/snaps.png " + os.path.dirname(
+                __file__) + "/screenshots/snaps.png"
+
+            subprocess.Popen(snap_cmd, shell=False, stdout=subprocess.PIPE).stdout.read()
+            subprocess.Popen(pull_cmd, shell=False, stdout=subprocess.PIPE).stdout.read()
+
+            image = Image.open(os.path.dirname(__file__) + "\\screenshots\\snaps.png")
+
+            if end_reg is None:
+                crop_top_x = self.cluster_list[start_reg - 1]['topX']
+                crop_top_y = self.cluster_list[start_reg - 1]['topY']
+                crop_bottom_x = self.cluster_list[start_reg - 1]['bottomX']
+                crop_bottom_y = self.cluster_list[start_reg - 1]['bottomY']
+            else:
+                crop_top_x = self.cluster_list[start_reg - 1]['topX']
+                crop_top_y = self.cluster_list[start_reg - 1]['topY']
+                crop_bottom_x = self.cluster_list[end_reg - 1]['bottomX']
+                crop_bottom_y = self.cluster_list[end_reg - 1]['bottomY']
+
+            box = (crop_top_x, crop_top_y, crop_bottom_x, crop_bottom_y)
+            area = image.crop(box)
+            area.save(os.path.dirname(__file__) + "\\screenshots\\cropped_snaps.png")
+            cropped_snap = os.path.dirname(__file__) + "\\screenshots\\cropped_snaps.png"
+
+            img_rgb = cv2.imread(cropped_snap)
+            template = cv2.imread(img)
+
+            res = cv2.matchTemplate(img_rgb, template, cv2.TM_CCOEFF_NORMED)
+            threshold = .8
+            loc = numpy.where(res >= threshold)
+            if loc[0].size > 0:
+                return True
+            return False

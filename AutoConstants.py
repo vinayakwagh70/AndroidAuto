@@ -19,3 +19,5 @@ SERVER_START_COMMAND = "service call window 1 i32 4939"
 TCP_FORWARD = "forward tcp"
 LOCALHOST = "127.0.0.1"
 DUMP_COMMAND = "DUMP"
+IMG_CLUSTER_COUNT = 4
+SCREENCAP_COMMAND = "/system/bin/screencap -p /storage/sdcard0/snaps.png"

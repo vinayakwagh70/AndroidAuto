@@ -1,5 +1,6 @@
 # Author : Vinayak Wagh
 # Date   : 11/8/2019
+import os
 
 
 class Module:
@@ -87,3 +88,13 @@ class Module:
             return self.ui.find_widget_by_text_class_ex(widget_text, widget_class_name)
         elif widget_class_name is not None and widget_id is not None and widget_text is not None:
             return self.ui.find_widget_by_id_text_class_ex(widget_id, widget_text, widget_class_name)
+
+    # Image Comparison
+    def validate_image_pattern(self, img=None, start_reg=None, end_reg=None):
+        if img is None or start_reg is None:
+            print "Please provide Image file & start region to search"
+            return False
+        if os.path.exists(img):
+            return self.ui.verify_pattern(img, start_reg, end_reg)
+        print str(img) + " does not exist!!"
+        return False
